@@ -13,7 +13,7 @@ parser.add_argument("--local_rank", default=0, type=int)
 args = parser.parse_args()
 
 # setup the distributed backend for managing the distributed training
-torch.distributed.init_process_group('nccl')
+torch.distributed.init_process_group('gloo')
 # Define a transform to normalize the data
 transform = transforms.Compose([transforms.ToTensor(),
                                 transforms.Normalize((0.5,), (0.5,)),
@@ -69,3 +69,6 @@ for e in range(epochs):
         running_loss += loss.item()
     else:
         print(f"Training loss: {running_loss / len(trainloader)}")
+
+# python3 -m torch.distributed.launch --nproc_per_node=4 --nnodes=2 --node_rank=0 --master_addr="10.182.0.2" --master_port=1234 another_neural_net.py
+# python3 -m torch.distributed.launch --nproc_per_node=4 --nnodes=2 --node_rank=1 --master_addr="10.182.0.2" --master_port=1234 another_neural_net.py
